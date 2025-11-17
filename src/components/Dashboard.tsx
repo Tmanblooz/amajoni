@@ -3,6 +3,8 @@ import PillarCard from "./PillarCard";
 import ActionItem from "./ActionItem";
 import VendorRiskSection from "./VendorRiskSection";
 import ComplianceSection from "./ComplianceSection";
+import AIRecommendations from "./AIRecommendations";
+import POPIAReportGenerator from "./POPIAReportGenerator";
 import { Shield, Users, Lock, FileText, Cloud, GraduationCap } from "lucide-react";
 
 const Dashboard = () => {
@@ -104,6 +106,41 @@ const Dashboard = () => {
             {priorityActions.map((action) => (
               <ActionItem key={action.priority} {...action} />
             ))}
+          </div>
+        </div>
+
+        {/* AI-Powered Features */}
+        <div>
+          <h2 className="text-2xl font-bold mb-6">AI-Powered Insights</h2>
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div className="lg:col-span-2">
+              <AIRecommendations 
+                securityData={{
+                  totalRiskScore,
+                  internalPostureScore,
+                  vendorRiskScore,
+                  pillars,
+                  currentActions: priorityActions
+                }}
+              />
+            </div>
+            <POPIAReportGenerator
+              complianceData={{
+                score: 67,
+                documents: [
+                  { name: "PAIA Manual", status: "missing", required: true },
+                  { name: "Privacy Policy", status: "complete", required: true },
+                  { name: "Data Processing Agreement", status: "partial", required: true },
+                  { name: "Consent Forms", status: "complete", required: false },
+                ]
+              }}
+              securityData={{
+                totalRiskScore,
+                internalPostureScore,
+                vendorRiskScore,
+                pillars: pillars.map(p => ({ title: p.title, score: p.score }))
+              }}
+            />
           </div>
         </div>
 
