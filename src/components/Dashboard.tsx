@@ -1,6 +1,8 @@
 import RiskScoreCard from "./RiskScoreCard";
 import PillarCard from "./PillarCard";
 import ActionItem from "./ActionItem";
+import VendorRiskSection from "./VendorRiskSection";
+import ComplianceSection from "./ComplianceSection";
 import { Shield, Users, Lock, FileText, Cloud, GraduationCap } from "lucide-react";
 
 const Dashboard = () => {
@@ -103,6 +105,12 @@ const Dashboard = () => {
               <ActionItem key={action.priority} {...action} />
             ))}
           </div>
+        </div>
+
+        {/* Vendor Risk and Compliance */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <VendorRiskSection />
+          <ComplianceSection />
         </div>
       </div>
     </section>
