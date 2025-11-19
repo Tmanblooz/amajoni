@@ -44,6 +44,8 @@ const menuItems = [
   { title: "Vendors", url: "/vendors", icon: Users },
   { title: "Compliance", url: "/compliance", icon: FileCheck },
   { title: "Reports", url: "/reports", icon: FileText },
+  { title: "Internal Hygiene", url: "/internal-hygiene", icon: Shield },
+  { title: "Training", url: "/training", icon: Shield },
 ];
 
 export const AppLayout = ({ children }: AppLayoutProps) => {
