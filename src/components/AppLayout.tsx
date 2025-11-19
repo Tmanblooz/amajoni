@@ -32,6 +32,7 @@ import {
   Shield,
   LogOut,
   Menu,
+  Settings,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
@@ -46,6 +47,7 @@ const menuItems = [
   { title: "Reports", url: "/reports", icon: FileText },
   { title: "Internal Hygiene", url: "/internal-hygiene", icon: Shield },
   { title: "Training", url: "/training", icon: Shield },
+  { title: "API Connections", url: "/api-connections", icon: Settings },
 ];
 
 export const AppLayout = ({ children }: AppLayoutProps) => {

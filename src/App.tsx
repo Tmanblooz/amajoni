@@ -14,6 +14,7 @@ import Reports from "./pages/Reports";
 import InternalHygiene from "./pages/InternalHygiene";
 import Training from "./pages/Training";
 import TrainingAdmin from "./pages/TrainingAdmin";
+import APIConnections from "./pages/APIConnections";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -93,6 +94,16 @@ const App = () => (
               <ProtectedRoute>
                 <AppLayout>
                   <TrainingAdmin />
+                </AppLayout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/api-connections"
+            element={
+              <ProtectedRoute>
+                <AppLayout>
+                  <APIConnections />
                 </AppLayout>
               </ProtectedRoute>
             }
