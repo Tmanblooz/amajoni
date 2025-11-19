@@ -11,6 +11,9 @@ import Auth from "./pages/Auth";
 import Vendors from "./pages/Vendors";
 import Compliance from "./pages/Compliance";
 import Reports from "./pages/Reports";
+import InternalHygiene from "./pages/InternalHygiene";
+import Training from "./pages/Training";
+import TrainingAdmin from "./pages/TrainingAdmin";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -60,6 +63,36 @@ const App = () => (
               <ProtectedRoute>
                 <AppLayout>
                   <Reports />
+                </AppLayout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/internal-hygiene"
+            element={
+              <ProtectedRoute>
+                <AppLayout>
+                  <InternalHygiene />
+                </AppLayout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/training"
+            element={
+              <ProtectedRoute>
+                <AppLayout>
+                  <Training />
+                </AppLayout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/training/admin"
+            element={
+              <ProtectedRoute>
+                <AppLayout>
+                  <TrainingAdmin />
                 </AppLayout>
               </ProtectedRoute>
             }
