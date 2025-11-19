@@ -23,6 +23,7 @@ export type Database = {
           effort: number
           id: string
           impact: number
+          organization_id: string | null
           priority_score: number | null
           status: string
           title: string
@@ -37,6 +38,7 @@ export type Database = {
           effort: number
           id?: string
           impact: number
+          organization_id?: string | null
           priority_score?: number | null
           status?: string
           title: string
@@ -51,13 +53,22 @@ export type Database = {
           effort?: number
           id?: string
           impact?: number
+          organization_id?: string | null
           priority_score?: number | null
           status?: string
           title?: string
           updated_at?: string
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "action_items_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       compliance_documents: {
         Row: {
@@ -66,6 +77,7 @@ export type Database = {
           id: string
           last_updated: string | null
           name: string
+          organization_id: string | null
           required: boolean
           status: string
           updated_at: string
@@ -77,6 +89,7 @@ export type Database = {
           id?: string
           last_updated?: string | null
           name: string
+          organization_id?: string | null
           required?: boolean
           status?: string
           updated_at?: string
@@ -88,12 +101,21 @@ export type Database = {
           id?: string
           last_updated?: string | null
           name?: string
+          organization_id?: string | null
           required?: boolean
           status?: string
           updated_at?: string
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "compliance_documents_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       device_health: {
         Row: {
@@ -105,6 +127,7 @@ export type Database = {
           id: string
           last_check: string | null
           mfa_enabled: boolean | null
+          organization_id: string | null
           os: string | null
           os_updated: boolean | null
           updated_at: string
@@ -119,6 +142,7 @@ export type Database = {
           id?: string
           last_check?: string | null
           mfa_enabled?: boolean | null
+          organization_id?: string | null
           os?: string | null
           os_updated?: boolean | null
           updated_at?: string
@@ -133,18 +157,28 @@ export type Database = {
           id?: string
           last_check?: string | null
           mfa_enabled?: boolean | null
+          organization_id?: string | null
           os?: string | null
           os_updated?: boolean | null
           updated_at?: string
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "device_health_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       internal_posture_pillars: {
         Row: {
           created_at: string
           description: string | null
           id: string
+          organization_id: string | null
           pillar_name: string
           score: number
           status: string
@@ -155,6 +189,7 @@ export type Database = {
           created_at?: string
           description?: string | null
           id?: string
+          organization_id?: string | null
           pillar_name: string
           score?: number
           status?: string
@@ -165,11 +200,41 @@ export type Database = {
           created_at?: string
           description?: string | null
           id?: string
+          organization_id?: string | null
           pillar_name?: string
           score?: number
           status?: string
           updated_at?: string
           user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "internal_posture_pillars_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      organizations: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          updated_at?: string
         }
         Relationships: []
       }
@@ -180,6 +245,7 @@ export type Database = {
           email: string
           full_name: string | null
           id: string
+          organization_id: string | null
           updated_at: string
         }
         Insert: {
@@ -188,6 +254,7 @@ export type Database = {
           email: string
           full_name?: string | null
           id: string
+          organization_id?: string | null
           updated_at?: string
         }
         Update: {
@@ -196,9 +263,18 @@ export type Database = {
           email?: string
           full_name?: string | null
           id?: string
+          organization_id?: string | null
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "profiles_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_roles: {
         Row: {
@@ -268,6 +344,7 @@ export type Database = {
           issues_count: number
           last_scan: string | null
           name: string
+          organization_id: string | null
           risk_score: number
           status: string
           updated_at: string
@@ -281,6 +358,7 @@ export type Database = {
           issues_count?: number
           last_scan?: string | null
           name: string
+          organization_id?: string | null
           risk_score?: number
           status?: string
           updated_at?: string
@@ -294,18 +372,28 @@ export type Database = {
           issues_count?: number
           last_scan?: string | null
           name?: string
+          organization_id?: string | null
           risk_score?: number
           status?: string
           updated_at?: string
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "vendors_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
+      get_user_organization_id: { Args: { _user_id: string }; Returns: string }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
