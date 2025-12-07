@@ -33,6 +33,7 @@ import {
   LogOut,
   Menu,
   Settings,
+  Activity,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
@@ -42,6 +43,7 @@ interface AppLayoutProps {
 
 const menuItems = [
   { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
+  { title: "Login Activity", url: "/login-activity", icon: Activity },
   { title: "Vendors", url: "/vendors", icon: Users },
   { title: "Compliance", url: "/compliance", icon: FileCheck },
   { title: "Reports", url: "/reports", icon: FileText },

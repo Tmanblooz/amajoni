@@ -329,6 +329,82 @@ export type Database = {
           },
         ]
       }
+      identity_alerts: {
+        Row: {
+          alert_type: string
+          created_at: string
+          description: string | null
+          email: string
+          iam_user_id: string | null
+          id: string
+          organization_id: string
+          recommended_action: string | null
+          resolved_at: string | null
+          resolved_by: string | null
+          severity: string
+          sign_in_log_id: string | null
+          status: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          alert_type: string
+          created_at?: string
+          description?: string | null
+          email: string
+          iam_user_id?: string | null
+          id?: string
+          organization_id: string
+          recommended_action?: string | null
+          resolved_at?: string | null
+          resolved_by?: string | null
+          severity: string
+          sign_in_log_id?: string | null
+          status?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          alert_type?: string
+          created_at?: string
+          description?: string | null
+          email?: string
+          iam_user_id?: string | null
+          id?: string
+          organization_id?: string
+          recommended_action?: string | null
+          resolved_at?: string | null
+          resolved_by?: string | null
+          severity?: string
+          sign_in_log_id?: string | null
+          status?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "identity_alerts_iam_user_id_fkey"
+            columns: ["iam_user_id"]
+            isOneToOne: false
+            referencedRelation: "iam_users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "identity_alerts_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "identity_alerts_sign_in_log_id_fkey"
+            columns: ["sign_in_log_id"]
+            isOneToOne: false
+            referencedRelation: "sign_in_logs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       internal_posture_pillars: {
         Row: {
           created_at: string
@@ -475,6 +551,84 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "profiles_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      sign_in_logs: {
+        Row: {
+          created_at: string
+          device_info: Json | null
+          email: string
+          external_user_id: string
+          iam_user_id: string | null
+          id: string
+          ip_address: string | null
+          is_suspicious: boolean | null
+          location_city: string | null
+          location_coordinates: Json | null
+          location_country: string | null
+          organization_id: string
+          provider: string
+          risk_factors: Json | null
+          risk_level: string | null
+          sign_in_time: string
+          status: string | null
+          user_agent: string | null
+        }
+        Insert: {
+          created_at?: string
+          device_info?: Json | null
+          email: string
+          external_user_id: string
+          iam_user_id?: string | null
+          id?: string
+          ip_address?: string | null
+          is_suspicious?: boolean | null
+          location_city?: string | null
+          location_coordinates?: Json | null
+          location_country?: string | null
+          organization_id: string
+          provider: string
+          risk_factors?: Json | null
+          risk_level?: string | null
+          sign_in_time: string
+          status?: string | null
+          user_agent?: string | null
+        }
+        Update: {
+          created_at?: string
+          device_info?: Json | null
+          email?: string
+          external_user_id?: string
+          iam_user_id?: string | null
+          id?: string
+          ip_address?: string | null
+          is_suspicious?: boolean | null
+          location_city?: string | null
+          location_coordinates?: Json | null
+          location_country?: string | null
+          organization_id?: string
+          provider?: string
+          risk_factors?: Json | null
+          risk_level?: string | null
+          sign_in_time?: string
+          status?: string | null
+          user_agent?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sign_in_logs_iam_user_id_fkey"
+            columns: ["iam_user_id"]
+            isOneToOne: false
+            referencedRelation: "iam_users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sign_in_logs_organization_id_fkey"
             columns: ["organization_id"]
             isOneToOne: false
             referencedRelation: "organizations"
