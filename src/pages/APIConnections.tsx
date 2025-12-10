@@ -382,7 +382,7 @@ const APIConnections = () => {
               </Dialog>
 
               {connection.enabled && connection.config && Object.keys(connection.config).length > 0 && (
-                <div className="grid grid-cols-2 gap-2">
+                <div className="grid grid-cols-3 gap-2">
                   <Button
                     onClick={() => triggerSync(connection, 'iam')}
                     disabled={syncing === `${connection.provider}-iam`}
@@ -414,6 +414,24 @@ const APIConnections = () => {
                       </>
                     )}
                   </Button>
+
+                  {connection.provider !== 'jumpcloud' && (
+                    <Button
+                      onClick={() => triggerSync(connection, 'sign-in-logs' as 'iam')}
+                      disabled={syncing === `${connection.provider}-sign-in-logs`}
+                      variant="outline"
+                    >
+                      {syncing === `${connection.provider}-sign-in-logs` && (
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      )}
+                      {syncing === `${connection.provider}-sign-in-logs` ? 'Syncing...' : (
+                        <>
+                          <RefreshCw className="mr-2 h-4 w-4" />
+                          Sync Sign-in Logs
+                        </>
+                      )}
+                    </Button>
+                  )}
                 </div>
               )}
 
