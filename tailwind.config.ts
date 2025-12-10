@@ -51,6 +51,14 @@ export default {
           critical: "hsl(var(--status-critical))",
           warning: "hsl(var(--status-warning))",
           healthy: "hsl(var(--status-healthy))",
+          info: "hsl(var(--status-info))",
+        },
+        grade: {
+          a: "hsl(var(--grade-a))",
+          b: "hsl(var(--grade-b))",
+          c: "hsl(var(--grade-c))",
+          d: "hsl(var(--grade-d))",
+          f: "hsl(var(--grade-f))",
         },
         chart: {
           "1": "hsl(var(--chart-1))",
@@ -67,25 +75,27 @@ export default {
       },
       keyframes: {
         "accordion-down": {
-          from: {
-            height: "0",
-          },
-          to: {
-            height: "var(--radix-accordion-content-height)",
-          },
+          from: { height: "0" },
+          to: { height: "var(--radix-accordion-content-height)" },
         },
         "accordion-up": {
-          from: {
-            height: "var(--radix-accordion-content-height)",
-          },
-          to: {
-            height: "0",
-          },
+          from: { height: "var(--radix-accordion-content-height)" },
+          to: { height: "0" },
+        },
+        "pulse-glow": {
+          "0%, 100%": { opacity: "1" },
+          "50%": { opacity: "0.5" },
+        },
+        "radar-sweep": {
+          "0%": { transform: "rotate(0deg)" },
+          "100%": { transform: "rotate(360deg)" },
         },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
+        "pulse-glow": "pulse-glow 2s ease-in-out infinite",
+        "radar-sweep": "radar-sweep 3s linear infinite",
       },
     },
   },
