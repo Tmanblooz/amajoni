@@ -1,108 +1,61 @@
-import { useQuery } from "@tanstack/react-query";
-import { useEffect } from "react";
-import { AlertTriangle, RefreshCw } from "lucide-react";
 import { AlertCard } from "@/components/amajoniid/AlertCard";
-import { toast } from "sonner";
-
-interface Alert {
-  id: string;
-  type: string;
-  severity: "low" | "medium" | "high" | "critical";
-  user: string;
-  timestamp: string;
-  message: string;
-}
-
-const mockAlerts: Alert[] = [
-  {
-    id: "1",
-    type: "Impossible Travel",
-    severity: "critical",
-    user: "john.doe@company.co.za",
-    timestamp: "2 min ago",
-    message: "Login detected from Johannesburg and Lagos within 30 minutes.",
-  },
-  {
-    id: "2",
-    type: "Failed Login Attempts",
-    severity: "high",
-    user: "admin@company.co.za",
-    timestamp: "15 min ago",
-    message: "5 failed login attempts from unknown IP address.",
-  },
-  {
-    id: "3",
-    type: "New Device Login",
-    severity: "medium",
-    user: "sarah.smith@company.co.za",
-    timestamp: "1 hour ago",
-    message: "First login from iPhone 15 Pro - Cape Town.",
-  },
-  {
-    id: "4",
-    type: "MFA Disabled",
-    severity: "high",
-    user: "finance@company.co.za",
-    timestamp: "2 hours ago",
-    message: "Multi-factor authentication was disabled for this account.",
-  },
-];
-
-async function fetchAlerts(): Promise<Alert[]> {
-  try {
-    const response = await fetch("http://localhost:8000/api/v1/alerts");
-    if (!response.ok) throw new Error("API unavailable");
-    return response.json();
-  } catch {
-    return mockAlerts;
-  }
-}
+import { useAmajoni } from "@/contexts/AmajoniContext";
+import { ShieldCheck, AlertTriangle, RefreshCw } from "lucide-react";
 
 export default function SOCAlerts() {
-  const { data: alerts = mockAlerts, dataUpdatedAt } = useQuery({
-    queryKey: ["soc-alerts"],
-    queryFn: fetchAlerts,
-    refetchInterval: 2000, // Poll every 2 seconds
-  });
-
-  // Show toast when new alerts come in
-  useEffect(() => {
-    if (alerts.length > 0 && alerts[0].severity === "critical") {
-      toast.error(`🚨 Critical Alert: ${alerts[0].type}`, {
-        description: alerts[0].message,
-      });
-    }
-  }, [dataUpdatedAt]);
+  const { alerts, resolveAlert, isUnderAttack } = useAmajoni();
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div className="p-3 rounded-lg bg-status-danger/10">
-            <AlertTriangle className="h-6 w-6 text-status-danger" />
-          </div>
-          <div>
-            <h1 className="text-3xl font-bold text-foreground">SOC Alerts</h1>
-            <p className="text-muted-foreground">Real-time security event feed</p>
-          </div>
+        <div>
+          <h1 className="text-3xl font-bold text-foreground">SOC Alerts</h1>
+          <p className="text-muted-foreground mt-1">
+            Security Operations Center - Real-time threat monitoring
+          </p>
         </div>
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
-          <RefreshCw className="h-4 w-4 animate-spin" />
-          <span>Auto-refreshing every 2s</span>
+          <RefreshCw className="h-4 w-4" />
+          <span>Live updates</span>
         </div>
       </div>
 
-      <div className="space-y-4">
-        {alerts.map((alert) => (
-          <AlertCard key={alert.id} alert={alert} />
-        ))}
-      </div>
+      {isUnderAttack && (
+        <div className="bg-status-danger/10 border border-status-danger/30 rounded-xl p-4 flex items-center gap-4 animate-pulse">
+          <AlertTriangle className="h-6 w-6 text-status-danger" />
+          <div>
+            <p className="font-semibold text-status-danger">Active Threat Detected</p>
+            <p className="text-sm text-muted-foreground">
+              Review critical alerts below and take immediate action
+            </p>
+          </div>
+        </div>
+      )}
 
-      {alerts.length === 0 && (
-        <div className="text-center py-12 bg-card border border-border rounded-xl">
-          <AlertTriangle className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-          <h3 className="text-lg font-semibold text-foreground">No Active Alerts</h3>
-          <p className="text-muted-foreground mt-1">Your systems are operating normally.</p>
+      {alerts.length === 0 ? (
+        <div className="bg-card border border-border rounded-xl p-12 text-center">
+          <ShieldCheck className="h-16 w-16 text-status-safe mx-auto mb-4" />
+          <h2 className="text-xl font-semibold text-foreground">All Clear</h2>
+          <p className="text-muted-foreground mt-2">
+            No active security alerts. Your systems are protected.
+          </p>
+        </div>
+      ) : (
+        <div className="space-y-4">
+          {alerts.map((alert) => (
+            <AlertCard
+              key={alert.id}
+              alert={{
+                id: alert.id,
+                type: alert.title,
+                severity: alert.severity,
+                user: "system@company.co.za",
+                timestamp: alert.timestamp.toLocaleTimeString(),
+                message: alert.message,
+              }}
+              onResolve={() => resolveAlert(alert.id)}
+            />
+          ))}
         </div>
       )}
     </div>

@@ -1,4 +1,5 @@
-import { AlertTriangle, Info, AlertCircle, XCircle } from "lucide-react";
+import { AlertTriangle, Info, AlertCircle, XCircle, CheckCircle2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 interface Alert {
   id: string;
@@ -11,9 +12,10 @@ interface Alert {
 
 interface AlertCardProps {
   alert: Alert;
+  onResolve?: () => void;
 }
 
-export function AlertCard({ alert }: AlertCardProps) {
+export function AlertCard({ alert, onResolve }: AlertCardProps) {
   const severityConfig = {
     low: {
       border: "border-l-status-info",
@@ -45,7 +47,9 @@ export function AlertCard({ alert }: AlertCardProps) {
   const Icon = config.icon;
 
   return (
-    <div className={`p-4 rounded-lg border border-border ${config.bg} border-l-4 ${config.border}`}>
+    <div className={`p-4 rounded-lg border border-border ${config.bg} border-l-4 ${config.border} ${
+      alert.severity === "critical" ? "animate-pulse" : ""
+    }`}>
       <div className="flex items-start gap-4">
         <div className={`p-2 rounded-lg bg-card ${config.iconColor}`}>
           <Icon className="h-5 w-5" />
@@ -57,6 +61,22 @@ export function AlertCard({ alert }: AlertCardProps) {
           </div>
           <p className="text-sm text-muted-foreground mt-1">Affected: {alert.user}</p>
           <p className="text-sm text-foreground mt-2">{alert.message}</p>
+          <div className="flex gap-2 mt-3">
+            <Button variant="outline" size="sm" className="text-xs">
+              Investigate
+            </Button>
+            {onResolve && (
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                className="text-xs text-status-safe"
+                onClick={onResolve}
+              >
+                <CheckCircle2 className="h-3 w-3 mr-1" />
+                Resolve
+              </Button>
+            )}
+          </div>
         </div>
         <span className={`px-2 py-1 rounded text-xs font-medium uppercase ${
           alert.severity === "critical" || alert.severity === "high" 
