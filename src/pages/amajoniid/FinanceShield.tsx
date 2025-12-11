@@ -1,128 +1,157 @@
-import { Landmark, Shield, CheckCircle, AlertCircle, CreditCard, Building } from "lucide-react";
+import { useAmajoni } from "@/contexts/AmajoniContext";
 import { KPICard } from "@/components/amajoniid/KPICard";
-
-interface BankAccount {
-  id: string;
-  name: string;
-  bank: string;
-  status: "protected" | "at-risk" | "unmonitored";
-  lastActivity: string;
-}
-
-const mockAccounts: BankAccount[] = [
-  {
-    id: "1",
-    name: "Main Business Account",
-    bank: "FNB Business",
-    status: "protected",
-    lastActivity: "Today, 14:32",
-  },
-  {
-    id: "2",
-    name: "TymeBank Account",
-    bank: "TymeBank",
-    status: "protected",
-    lastActivity: "Today, 09:15",
-  },
-  {
-    id: "3",
-    name: "Petty Cash Account",
-    bank: "Capitec",
-    status: "at-risk",
-    lastActivity: "Yesterday, 16:45",
-  },
-];
+import { ShieldCheck, ShieldAlert, Smartphone, Cpu, Wifi, CheckCircle, XCircle, AlertTriangle, Shield, CreditCard, AlertCircle, Building } from "lucide-react";
 
 export default function FinanceShield() {
-  const statusConfig = {
-    protected: {
-      icon: CheckCircle,
-      color: "text-status-safe",
-      bg: "bg-status-safe/10",
-      label: "Protected",
+  const { isUnderAttack } = useAmajoni();
+
+  const checks = [
+    { 
+      icon: Smartphone, 
+      label: "SIM Swap Monitor", 
+      status: isUnderAttack ? "threat" : "safe",
+      description: isUnderAttack ? "Suspicious SIM activity detected" : "No unauthorized SIM changes"
     },
-    "at-risk": {
-      icon: AlertCircle,
-      color: "text-status-danger",
-      bg: "bg-status-danger/10",
-      label: "At Risk",
+    { 
+      icon: Cpu, 
+      label: "Device Root Check", 
+      status: "safe",
+      description: "Device integrity verified"
     },
-    unmonitored: {
-      icon: Shield,
-      color: "text-muted-foreground",
-      bg: "bg-muted",
-      label: "Unmonitored",
+    { 
+      icon: Wifi, 
+      label: "WiFi Security", 
+      status: "warning",
+      description: "Connected to public network"
     },
+  ];
+
+  const getStatusIcon = (status: string) => {
+    switch (status) {
+      case "safe":
+        return <CheckCircle className="h-5 w-5 text-status-safe" />;
+      case "warning":
+        return <AlertTriangle className="h-5 w-5 text-status-warning" />;
+      case "threat":
+        return <XCircle className="h-5 w-5 text-status-danger" />;
+      default:
+        return null;
+    }
   };
 
   return (
-    <div className="space-y-8">
-      <div className="flex items-center gap-3">
-        <div className="p-3 rounded-lg bg-primary/10">
-          <Landmark className="h-6 w-6 text-primary" />
-        </div>
-        <div>
-          <h1 className="text-3xl font-bold text-foreground">FinanceShield</h1>
-          <p className="text-muted-foreground">Banking and transaction protection</p>
-        </div>
+    <div className="space-y-6">
+      <div>
+        <h1 className="text-3xl font-bold text-foreground">FinanceShield</h1>
+        <p className="text-muted-foreground mt-1">
+          Banking and financial transaction protection
+        </p>
+      </div>
+
+      {/* Status Hero */}
+      <div className={`rounded-2xl p-8 text-center border transition-all duration-500 ${
+        isUnderAttack 
+          ? "bg-status-danger/10 border-status-danger/30" 
+          : "bg-status-safe/10 border-status-safe/30"
+      }`}>
+        {isUnderAttack ? (
+          <>
+            <ShieldAlert className="h-20 w-20 text-status-danger mx-auto mb-4 animate-pulse" />
+            <h2 className="text-2xl font-bold text-status-danger">THREAT DETECTED</h2>
+            <p className="text-muted-foreground mt-2">
+              Suspicious financial activity detected. Review SOC Alerts immediately.
+            </p>
+          </>
+        ) : (
+          <>
+            <ShieldCheck className="h-20 w-20 text-status-safe mx-auto mb-4" />
+            <h2 className="text-2xl font-bold text-status-safe">Banking Protection Active</h2>
+            <p className="text-muted-foreground mt-2">
+              Your financial transactions are being monitored in real-time.
+            </p>
+          </>
+        )}
       </div>
 
       {/* KPI Overview */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <KPICard
           title="Protected Accounts"
-          value="2/3"
+          value="4/4"
           icon={Shield}
-          variant="safe"
+          variant={isUnderAttack ? "danger" : "safe"}
         />
         <KPICard
           title="Transactions Today"
-          value="47"
+          value={isUnderAttack ? "48" : "47"}
           icon={CreditCard}
           variant="default"
         />
         <KPICard
           title="Blocked Attempts"
-          value="0"
+          value={isUnderAttack ? "1" : "0"}
           icon={AlertCircle}
-          variant="safe"
+          variant={isUnderAttack ? "danger" : "safe"}
         />
       </div>
 
-      {/* Bank Accounts */}
+      {/* Security Checklist */}
       <div className="bg-card border border-border rounded-xl p-6">
-        <h2 className="text-xl font-semibold text-foreground mb-6">Connected Accounts</h2>
+        <h3 className="text-lg font-semibold text-foreground mb-4">Security Checklist</h3>
         <div className="space-y-4">
-          {mockAccounts.map((account) => {
-            const config = statusConfig[account.status];
-            const StatusIcon = config.icon;
-            return (
-              <div
-                key={account.id}
-                className="flex items-center justify-between p-4 rounded-lg bg-secondary border border-border"
-              >
-                <div className="flex items-center gap-4">
-                  <div className="p-3 rounded-lg bg-muted">
-                    <Building className="h-6 w-6 text-muted-foreground" />
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-foreground">{account.name}</h3>
-                    <p className="text-sm text-muted-foreground">{account.bank}</p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-6">
-                  <div className="text-right">
-                    <p className="text-sm text-muted-foreground">Last Activity</p>
-                    <p className="text-sm font-medium text-foreground">{account.lastActivity}</p>
-                  </div>
-                  <div className={`flex items-center gap-2 px-3 py-2 rounded-lg ${config.bg}`}>
-                    <StatusIcon className={`h-5 w-5 ${config.color}`} />
-                    <span className={`text-sm font-medium ${config.color}`}>{config.label}</span>
-                  </div>
-                </div>
+          {checks.map((check, index) => (
+            <div 
+              key={index} 
+              className={`flex items-center gap-4 p-4 rounded-lg border transition-all ${
+                check.status === "threat" 
+                  ? "bg-status-danger/5 border-status-danger/20" 
+                  : check.status === "warning"
+                  ? "bg-status-warning/5 border-status-warning/20"
+                  : "bg-secondary/50 border-border"
+              }`}
+            >
+              <div className={`p-3 rounded-lg ${
+                check.status === "threat" 
+                  ? "bg-status-danger/10" 
+                  : check.status === "warning"
+                  ? "bg-status-warning/10"
+                  : "bg-status-safe/10"
+              }`}>
+                <check.icon className={`h-5 w-5 ${
+                  check.status === "threat" 
+                    ? "text-status-danger" 
+                    : check.status === "warning"
+                    ? "text-status-warning"
+                    : "text-status-safe"
+                }`} />
               </div>
-            );
-          })}
+              <div className="flex-1">
+                <p className="font-medium text-foreground">{check.label}</p>
+                <p className="text-sm text-muted-foreground">{check.description}</p>
+              </div>
+              {getStatusIcon(check.status)}
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Protected Accounts */}
+      <div className="bg-card border border-border rounded-xl p-6">
+        <h3 className="text-lg font-semibold text-foreground mb-4">Protected Accounts</h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {["TymeBank Business", "FNB Commercial", "Standard Bank", "Capitec Business"].map((bank, index) => (
+            <div key={index} className="flex items-center gap-3 p-3 bg-secondary/50 rounded-lg border border-border">
+              <div className="p-2 rounded-lg bg-muted">
+                <Building className="h-5 w-5 text-muted-foreground" />
+              </div>
+              <div className="flex-1">
+                <p className="font-medium text-foreground text-sm">{bank}</p>
+                <p className={`text-xs ${isUnderAttack && bank === "TymeBank Business" ? "text-status-danger" : "text-status-safe"}`}>
+                  {isUnderAttack && bank === "TymeBank Business" ? "Suspicious activity" : "Protected"}
+                </p>
+              </div>
+            </div>
+          ))}
         </div>
       </div>
     </div>

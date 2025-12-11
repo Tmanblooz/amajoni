@@ -1,8 +1,8 @@
 import { ReactNode } from "react";
 import { NavLink, useLocation } from "react-router-dom";
-import { Shield, LayoutDashboard, Eye, AlertTriangle, Landmark, RotateCcw, Zap } from "lucide-react";
+import { Shield, LayoutDashboard, ShieldAlert, Bell, Wallet, RotateCcw, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { toast } from "sonner";
+import { useAmajoni } from "@/contexts/AmajoniContext";
 
 interface AmajoniLayoutProps {
   children: ReactNode;
@@ -10,35 +10,14 @@ interface AmajoniLayoutProps {
 
 const navItems = [
   { path: "/amajoniid", label: "Dashboard", icon: LayoutDashboard },
-  { path: "/amajoniid/shadow-access", label: "Shadow Access", icon: Eye },
-  { path: "/amajoniid/soc-alerts", label: "SOC Alerts", icon: AlertTriangle },
-  { path: "/amajoniid/finance-shield", label: "FinanceShield", icon: Landmark },
+  { path: "/amajoniid/shadow-access", label: "Access & Shadow IT", icon: ShieldAlert },
+  { path: "/amajoniid/soc-alerts", label: "SOC Alerts", icon: Bell },
+  { path: "/amajoniid/finance-shield", label: "FinanceShield", icon: Wallet },
 ];
 
 export function AmajoniLayout({ children }: AmajoniLayoutProps) {
   const location = useLocation();
-
-  const handleReset = async () => {
-    try {
-      await fetch("http://localhost:8000/api/v1/admin/reset", { method: "POST" });
-      toast.success("System reset complete");
-    } catch {
-      toast.info("Reset simulated (API not available)");
-    }
-  };
-
-  const handleSimulateTheft = async () => {
-    try {
-      await fetch("http://localhost:8000/api/v1/simulate/scan-sms", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ sms_text: "Confirmation: Payment of R20,000 from TymeBank." }),
-      });
-      toast.error("🚨 Theft simulation triggered!");
-    } catch {
-      toast.warning("Simulation triggered (API not available)");
-    }
-  };
+  const { simulateTheft, resetSystem, isUnderAttack } = useAmajoni();
 
   return (
     <div className="min-h-screen flex bg-background dark">
@@ -98,13 +77,17 @@ export function AmajoniLayout({ children }: AmajoniLayoutProps) {
       </main>
 
       {/* Developer Controls Footer */}
-      <footer className="fixed bottom-0 left-0 right-0 bg-card border-t border-border p-4 z-50">
+      <footer className={`fixed bottom-0 left-0 right-0 border-t p-4 z-50 transition-colors ${
+        isUnderAttack ? "bg-status-danger/10 border-status-danger/50" : "bg-card border-border"
+      }`}>
         <div className="flex items-center justify-center gap-4">
-          <span className="text-sm text-muted-foreground font-medium">Developer Controls:</span>
+          <span className="text-sm text-muted-foreground font-medium">
+            {isUnderAttack ? "⚠️ THREAT ACTIVE" : "Developer Controls:"}
+          </span>
           <Button
             variant="outline"
             size="sm"
-            onClick={handleReset}
+            onClick={resetSystem}
             className="gap-2 border-status-safe/30 text-status-safe hover:bg-status-safe/10"
           >
             <RotateCcw className="h-4 w-4" />
@@ -113,8 +96,9 @@ export function AmajoniLayout({ children }: AmajoniLayoutProps) {
           <Button
             variant="outline"
             size="sm"
-            onClick={handleSimulateTheft}
-            className="gap-2 border-status-danger/30 text-status-danger hover:bg-status-danger/10"
+            onClick={simulateTheft}
+            disabled={isUnderAttack}
+            className="gap-2 border-status-danger/30 text-status-danger hover:bg-status-danger/10 disabled:opacity-50"
           >
             <Zap className="h-4 w-4" />
             Simulate Theft (R20k)

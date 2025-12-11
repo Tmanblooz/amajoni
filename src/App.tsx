@@ -4,6 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AmajoniLayout } from "@/components/amajoniid/AmajoniLayout";
+import { AmajoniProvider } from "@/contexts/AmajoniContext";
 
 // AmajoniID Pages
 import Dashboard from "./pages/amajoniid/Dashboard";
@@ -21,46 +22,48 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
-        <Routes>
-          {/* Redirect root to AmajoniID dashboard */}
-          <Route path="/" element={<Navigate to="/amajoniid" replace />} />
-          
-          {/* AmajoniID Routes */}
-          <Route
-            path="/amajoniid"
-            element={
-              <AmajoniLayout>
-                <Dashboard />
-              </AmajoniLayout>
-            }
-          />
-          <Route
-            path="/amajoniid/shadow-access"
-            element={
-              <AmajoniLayout>
-                <ShadowAccess />
-              </AmajoniLayout>
-            }
-          />
-          <Route
-            path="/amajoniid/soc-alerts"
-            element={
-              <AmajoniLayout>
-                <SOCAlerts />
-              </AmajoniLayout>
-            }
-          />
-          <Route
-            path="/amajoniid/finance-shield"
-            element={
-              <AmajoniLayout>
-                <FinanceShield />
-              </AmajoniLayout>
-            }
-          />
+        <AmajoniProvider>
+          <Routes>
+            {/* Redirect root to AmajoniID dashboard */}
+            <Route path="/" element={<Navigate to="/amajoniid" replace />} />
+            
+            {/* AmajoniID Routes */}
+            <Route
+              path="/amajoniid"
+              element={
+                <AmajoniLayout>
+                  <Dashboard />
+                </AmajoniLayout>
+              }
+            />
+            <Route
+              path="/amajoniid/shadow-access"
+              element={
+                <AmajoniLayout>
+                  <ShadowAccess />
+                </AmajoniLayout>
+              }
+            />
+            <Route
+              path="/amajoniid/soc-alerts"
+              element={
+                <AmajoniLayout>
+                  <SOCAlerts />
+                </AmajoniLayout>
+              }
+            />
+            <Route
+              path="/amajoniid/finance-shield"
+              element={
+                <AmajoniLayout>
+                  <FinanceShield />
+                </AmajoniLayout>
+              }
+            />
 
-          <Route path="*" element={<NotFound />} />
-        </Routes>
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </AmajoniProvider>
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
