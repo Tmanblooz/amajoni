@@ -2,110 +2,110 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Amajoni Identity Risk Monitor Design System
-   Dark mode by default with turquoise + amber accents
-   Security-focused, enterprise-grade styling
+/* AmajoniID Cyber Defense Design System
+   Dark mode with Slate-900 backgrounds
+   Emerald (safe), Amber (warning), Rose (danger), Indigo (accent)
 */
 
 @layer base {
   :root {
-    --background: 220 20% 97%;
-    --foreground: 220 30% 10%;
+    --background: 222 47% 11%;
+    --foreground: 210 40% 98%;
 
-    --card: 0 0% 100%;
-    --card-foreground: 220 30% 10%;
+    --card: 222 47% 14%;
+    --card-foreground: 210 40% 98%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 220 30% 10%;
+    --popover: 222 47% 14%;
+    --popover-foreground: 210 40% 98%;
 
-    --primary: 174 72% 40%;
-    --primary-foreground: 0 0% 100%;
+    --primary: 239 84% 67%;
+    --primary-foreground: 210 40% 98%;
 
-    --secondary: 220 20% 94%;
-    --secondary-foreground: 220 30% 10%;
+    --secondary: 222 47% 18%;
+    --secondary-foreground: 210 40% 98%;
 
-    --muted: 220 15% 92%;
-    --muted-foreground: 220 10% 45%;
+    --muted: 222 47% 20%;
+    --muted-foreground: 215 20% 65%;
 
-    --accent: 38 92% 50%;
-    --accent-foreground: 220 30% 10%;
+    --accent: 239 84% 67%;
+    --accent-foreground: 210 40% 98%;
 
-    --destructive: 0 72% 51%;
-    --destructive-foreground: 0 0% 100%;
+    --destructive: 347 77% 50%;
+    --destructive-foreground: 210 40% 98%;
 
-    --border: 220 15% 88%;
-    --input: 220 15% 88%;
-    --ring: 174 72% 40%;
+    --border: 222 47% 22%;
+    --input: 222 47% 22%;
+    --ring: 239 84% 67%;
 
     --radius: 0.5rem;
 
-    /* Status colors for risk scoring */
-    --status-critical: 0 72% 51%;
+    /* Status colors - Emerald/Amber/Rose */
+    --status-safe: 160 84% 39%;
     --status-warning: 38 92% 50%;
-    --status-healthy: 152 69% 40%;
-    --status-info: 205 84% 52%;
+    --status-danger: 347 77% 50%;
+    --status-info: 239 84% 67%;
     
     /* Risk grades */
-    --grade-a: 152 69% 40%;
-    --grade-b: 152 50% 50%;
+    --grade-a: 160 84% 39%;
+    --grade-b: 160 60% 45%;
     --grade-c: 38 92% 50%;
     --grade-d: 25 90% 50%;
-    --grade-f: 0 72% 51%;
+    --grade-f: 347 77% 50%;
     
     /* Chart colors */
-    --chart-1: 174 72% 40%;
-    --chart-2: 38 92% 50%;
-    --chart-3: 152 69% 40%;
-    --chart-4: 0 72% 51%;
+    --chart-1: 239 84% 67%;
+    --chart-2: 160 84% 39%;
+    --chart-3: 38 92% 50%;
+    --chart-4: 347 77% 50%;
     --chart-5: 270 60% 55%;
   }
 
   .dark {
-    --background: 220 25% 8%;
-    --foreground: 210 20% 95%;
+    --background: 222 47% 11%;
+    --foreground: 210 40% 98%;
 
-    --card: 220 25% 12%;
-    --card-foreground: 210 20% 95%;
+    --card: 222 47% 14%;
+    --card-foreground: 210 40% 98%;
 
-    --popover: 220 25% 12%;
-    --popover-foreground: 210 20% 95%;
+    --popover: 222 47% 14%;
+    --popover-foreground: 210 40% 98%;
 
-    --primary: 174 72% 45%;
-    --primary-foreground: 220 25% 8%;
+    --primary: 239 84% 67%;
+    --primary-foreground: 210 40% 98%;
 
-    --secondary: 220 25% 16%;
-    --secondary-foreground: 210 20% 95%;
+    --secondary: 222 47% 18%;
+    --secondary-foreground: 210 40% 98%;
 
-    --muted: 220 25% 16%;
-    --muted-foreground: 220 15% 55%;
+    --muted: 222 47% 20%;
+    --muted-foreground: 215 20% 65%;
 
-    --accent: 38 92% 50%;
-    --accent-foreground: 220 25% 8%;
+    --accent: 239 84% 67%;
+    --accent-foreground: 210 40% 98%;
 
-    --destructive: 0 72% 51%;
-    --destructive-foreground: 0 0% 100%;
+    --destructive: 347 77% 50%;
+    --destructive-foreground: 210 40% 98%;
 
-    --border: 220 25% 20%;
-    --input: 220 25% 20%;
-    --ring: 174 72% 45%;
+    --border: 222 47% 22%;
+    --input: 222 47% 22%;
+    --ring: 239 84% 67%;
 
-    /* Status colors for dark mode */
-    --status-critical: 0 72% 55%;
-    --status-warning: 38 92% 55%;
-    --status-healthy: 152 69% 50%;
-    --status-info: 205 84% 60%;
+    /* Status colors dark mode */
+    --status-safe: 160 84% 39%;
+    --status-warning: 38 92% 50%;
+    --status-danger: 347 77% 50%;
+    --status-info: 239 84% 67%;
     
     /* Risk grades dark mode */
-    --grade-a: 152 69% 50%;
-    --grade-b: 152 50% 55%;
+    --grade-a: 160 84% 45%;
+    --grade-b: 160 60% 50%;
     --grade-c: 38 92% 55%;
     --grade-d: 25 90% 55%;
-    --grade-f: 0 72% 55%;
+    --grade-f: 347 77% 55%;
     
-    --chart-1: 174 72% 50%;
-    --chart-2: 38 92% 55%;
-    --chart-3: 152 69% 50%;
-    --chart-4: 0 72% 55%;
+    --chart-1: 239 84% 67%;
+    --chart-2: 160 84% 45%;
+    --chart-3: 38 92% 55%;
+    --chart-4: 347 77% 55%;
     --chart-5: 270 60% 60%;
   }
 }
@@ -130,17 +130,19 @@
     @apply bg-card/80 backdrop-blur-sm;
   }
   
-  .glow-primary {
-    box-shadow: 0 0 20px hsl(var(--primary) / 0.3);
+  .glow-safe {
+    box-shadow: 0 0 20px hsl(var(--status-safe) / 0.4);
+  }
+  
+  .glow-warning {
+    box-shadow: 0 0 20px hsl(var(--status-warning) / 0.4);
+  }
+  
+  .glow-danger {
+    box-shadow: 0 0 20px hsl(var(--status-danger) / 0.4);
   }
   
   .glow-accent {
     box-shadow: 0 0 20px hsl(var(--accent) / 0.3);
-  }
-  
-  .gradient-border {
-    background: linear-gradient(var(--background), var(--background)) padding-box,
-                linear-gradient(135deg, hsl(var(--primary)), hsl(var(--accent))) border-box;
-    border: 2px solid transparent;
   }
 }
