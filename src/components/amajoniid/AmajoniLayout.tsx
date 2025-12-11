@@ -1,8 +1,16 @@
-import { ReactNode } from "react";
+import { ReactNode, useState } from "react";
 import { NavLink, useLocation } from "react-router-dom";
-import { Shield, LayoutDashboard, ShieldAlert, Bell, Wallet, RotateCcw, Zap } from "lucide-react";
+import { Shield, LayoutDashboard, ShieldAlert, Bell, Wallet, RotateCcw, Zap, ChevronDown, Plane, Lock, Eye, Smartphone, Fish } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAmajoni } from "@/contexts/AmajoniContext";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+  DropdownMenuSeparator,
+  DropdownMenuLabel,
+} from "@/components/ui/dropdown-menu";
 
 interface AmajoniLayoutProps {
   children: ReactNode;
@@ -17,7 +25,26 @@ const navItems = [
 
 export function AmajoniLayout({ children }: AmajoniLayoutProps) {
   const location = useLocation();
-  const { simulateTheft, resetSystem, isUnderAttack } = useAmajoni();
+  const { 
+    simulateTheft, 
+    simulateImpossibleTravel, 
+    simulateBruteForce, 
+    simulateShadowApp, 
+    simulateSIMSwap, 
+    simulatePhishing,
+    resetSystem, 
+    isUnderAttack,
+    threatType 
+  } = useAmajoni();
+
+  const scenarios = [
+    { label: "💰 Financial Theft (R20k)", action: simulateTheft, icon: Zap, description: "TymeBank unauthorized transaction" },
+    { label: "✈️ Impossible Travel", action: simulateImpossibleTravel, icon: Plane, description: "Login from 2 countries in 15 min" },
+    { label: "🔐 Brute Force Attack", action: simulateBruteForce, icon: Lock, description: "47 failed login attempts" },
+    { label: "👁️ Malicious Shadow App", action: simulateShadowApp, icon: Eye, description: "Risky OAuth app permissions" },
+    { label: "📱 SIM Swap Attack", action: simulateSIMSwap, icon: Smartphone, description: "CEO phone number hijacked" },
+    { label: "🎣 Phishing Success", action: simulatePhishing, icon: Fish, description: "Employee credentials stolen" },
+  ];
 
   return (
     <div className="min-h-screen flex bg-background dark">
@@ -26,12 +53,14 @@ export function AmajoniLayout({ children }: AmajoniLayoutProps) {
         {/* Logo */}
         <div className="p-6 border-b border-border">
           <div className="flex items-center gap-3">
-            <div className="p-2 rounded-lg bg-primary/10">
-              <Shield className="h-8 w-8 text-primary" />
+            <div className={`p-2 rounded-lg transition-colors ${isUnderAttack ? "bg-status-danger/20" : "bg-primary/10"}`}>
+              <Shield className={`h-8 w-8 ${isUnderAttack ? "text-status-danger animate-pulse" : "text-primary"}`} />
             </div>
             <div>
               <h1 className="text-xl font-bold text-foreground">AmajoniID</h1>
-              <p className="text-xs text-muted-foreground">Cyber Defense</p>
+              <p className={`text-xs ${isUnderAttack ? "text-status-danger" : "text-muted-foreground"}`}>
+                {isUnderAttack ? `⚠️ ${threatType}` : "Cyber Defense"}
+              </p>
             </div>
           </div>
         </div>
@@ -40,6 +69,7 @@ export function AmajoniLayout({ children }: AmajoniLayoutProps) {
         <nav className="flex-1 p-4 space-y-2">
           {navItems.map((item) => {
             const isActive = location.pathname === item.path;
+            const hasAlert = isUnderAttack && item.path === "/amajoniid/soc-alerts";
             return (
               <NavLink
                 key={item.path}
@@ -48,10 +78,13 @@ export function AmajoniLayout({ children }: AmajoniLayoutProps) {
                   isActive
                     ? "bg-primary/10 text-primary border border-primary/20"
                     : "text-muted-foreground hover:bg-secondary hover:text-foreground"
-                }`}
+                } ${hasAlert ? "animate-pulse bg-status-danger/10 border-status-danger/30" : ""}`}
               >
-                <item.icon className="h-5 w-5" />
+                <item.icon className={`h-5 w-5 ${hasAlert ? "text-status-danger" : ""}`} />
                 <span className="font-medium">{item.label}</span>
+                {hasAlert && (
+                  <span className="ml-auto h-2 w-2 rounded-full bg-status-danger animate-pulse" />
+                )}
               </NavLink>
             );
           })}
@@ -72,18 +105,19 @@ export function AmajoniLayout({ children }: AmajoniLayoutProps) {
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 ml-64 pb-20">
+      <main className="flex-1 ml-64 pb-24">
         <div className="p-8">{children}</div>
       </main>
 
       {/* Developer Controls Footer */}
-      <footer className={`fixed bottom-0 left-0 right-0 border-t p-4 z-50 transition-colors ${
+      <footer className={`fixed bottom-0 left-0 right-0 border-t p-4 z-50 transition-all duration-300 ${
         isUnderAttack ? "bg-status-danger/10 border-status-danger/50" : "bg-card border-border"
       }`}>
         <div className="flex items-center justify-center gap-4">
           <span className="text-sm text-muted-foreground font-medium">
-            {isUnderAttack ? "⚠️ THREAT ACTIVE" : "Developer Controls:"}
+            {isUnderAttack ? `⚠️ THREAT: ${threatType}` : "Demo Controls:"}
           </span>
+          
           <Button
             variant="outline"
             size="sm"
@@ -93,16 +127,35 @@ export function AmajoniLayout({ children }: AmajoniLayoutProps) {
             <RotateCcw className="h-4 w-4" />
             Reset System
           </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={simulateTheft}
-            disabled={isUnderAttack}
-            className="gap-2 border-status-danger/30 text-status-danger hover:bg-status-danger/10 disabled:opacity-50"
-          >
-            <Zap className="h-4 w-4" />
-            Simulate Theft (R20k)
-          </Button>
+
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant="outline"
+                size="sm"
+                disabled={isUnderAttack}
+                className="gap-2 border-status-danger/30 text-status-danger hover:bg-status-danger/10 disabled:opacity-50"
+              >
+                <Zap className="h-4 w-4" />
+                Simulate Attack
+                <ChevronDown className="h-3 w-3" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-64">
+              <DropdownMenuLabel>Choose Attack Scenario</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              {scenarios.map((scenario, index) => (
+                <DropdownMenuItem 
+                  key={index}
+                  onClick={scenario.action}
+                  className="flex flex-col items-start gap-1 py-3 cursor-pointer"
+                >
+                  <span className="font-medium">{scenario.label}</span>
+                  <span className="text-xs text-muted-foreground">{scenario.description}</span>
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </footer>
     </div>
