@@ -48,9 +48,9 @@ export default {
           foreground: "hsl(var(--card-foreground))",
         },
         status: {
-          critical: "hsl(var(--status-critical))",
+          safe: "hsl(var(--status-safe))",
           warning: "hsl(var(--status-warning))",
-          healthy: "hsl(var(--status-healthy))",
+          danger: "hsl(var(--status-danger))",
           info: "hsl(var(--status-info))",
         },
         grade: {

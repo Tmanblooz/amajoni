@@ -3,19 +3,14 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import { ProtectedRoute } from "@/components/ProtectedRoute";
-import { AppLayout } from "@/components/AppLayout";
-import Landing from "./pages/Landing";
-import Index from "./pages/Index";
-import Auth from "./pages/Auth";
-import Vendors from "./pages/Vendors";
-import Compliance from "./pages/Compliance";
-import Reports from "./pages/Reports";
-import InternalHygiene from "./pages/InternalHygiene";
-import Training from "./pages/Training";
-import TrainingAdmin from "./pages/TrainingAdmin";
-import APIConnections from "./pages/APIConnections";
-import LoginActivity from "./pages/LoginActivity";
+import { AmajoniLayout } from "@/components/amajoniid/AmajoniLayout";
+
+// AmajoniID Pages
+import Dashboard from "./pages/amajoniid/Dashboard";
+import ShadowAccess from "./pages/amajoniid/ShadowAccess";
+import SOCAlerts from "./pages/amajoniid/SOCAlerts";
+import FinanceShield from "./pages/amajoniid/FinanceShield";
+
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -27,99 +22,43 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <Routes>
-          <Route path="/" element={<Landing />} />
-          <Route path="/auth" element={<Auth />} />
+          {/* Redirect root to AmajoniID dashboard */}
+          <Route path="/" element={<Navigate to="/amajoniid" replace />} />
+          
+          {/* AmajoniID Routes */}
           <Route
-            path="/dashboard"
+            path="/amajoniid"
             element={
-              <ProtectedRoute>
-                <AppLayout>
-                  <Index />
-                </AppLayout>
-              </ProtectedRoute>
+              <AmajoniLayout>
+                <Dashboard />
+              </AmajoniLayout>
             }
           />
           <Route
-            path="/vendors"
+            path="/amajoniid/shadow-access"
             element={
-              <ProtectedRoute>
-                <AppLayout>
-                  <Vendors />
-                </AppLayout>
-              </ProtectedRoute>
+              <AmajoniLayout>
+                <ShadowAccess />
+              </AmajoniLayout>
             }
           />
           <Route
-            path="/compliance"
+            path="/amajoniid/soc-alerts"
             element={
-              <ProtectedRoute>
-                <AppLayout>
-                  <Compliance />
-                </AppLayout>
-              </ProtectedRoute>
+              <AmajoniLayout>
+                <SOCAlerts />
+              </AmajoniLayout>
             }
           />
           <Route
-            path="/reports"
+            path="/amajoniid/finance-shield"
             element={
-              <ProtectedRoute>
-                <AppLayout>
-                  <Reports />
-                </AppLayout>
-              </ProtectedRoute>
+              <AmajoniLayout>
+                <FinanceShield />
+              </AmajoniLayout>
             }
           />
-          <Route
-            path="/internal-hygiene"
-            element={
-              <ProtectedRoute>
-                <AppLayout>
-                  <InternalHygiene />
-                </AppLayout>
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/training"
-            element={
-              <ProtectedRoute>
-                <AppLayout>
-                  <Training />
-                </AppLayout>
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/training/admin"
-            element={
-              <ProtectedRoute>
-                <AppLayout>
-                  <TrainingAdmin />
-                </AppLayout>
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/api-connections"
-            element={
-              <ProtectedRoute>
-                <AppLayout>
-                  <APIConnections />
-                </AppLayout>
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/login-activity"
-            element={
-              <ProtectedRoute>
-                <AppLayout>
-                  <LoginActivity />
-                </AppLayout>
-              </ProtectedRoute>
-            }
-          />
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
