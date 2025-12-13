@@ -1,6 +1,6 @@
 import { ReactNode, useState } from "react";
 import { NavLink, useLocation } from "react-router-dom";
-import { Shield, LayoutDashboard, ShieldAlert, Bell, Wallet, RotateCcw, Zap, ChevronDown, Plane, Lock, Eye, Smartphone, Fish } from "lucide-react";
+import { Shield, LayoutDashboard, ShieldAlert, Bell, Wallet, RotateCcw, Zap, ChevronDown, Plane, Lock, Eye, Smartphone, Fish, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAmajoni } from "@/contexts/AmajoniContext";
 import {
@@ -21,6 +21,7 @@ const navItems = [
   { path: "/amajoniid/shadow-access", label: "Access & Shadow IT", icon: ShieldAlert },
   { path: "/amajoniid/soc-alerts", label: "SOC Alerts", icon: Bell },
   { path: "/amajoniid/finance-shield", label: "FinanceShield", icon: Wallet },
+  { path: "/amajoniid/settings", label: "Alert Settings", icon: Settings },
 ];
 
 export function AmajoniLayout({ children }: AmajoniLayoutProps) {

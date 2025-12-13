@@ -11,6 +11,7 @@ import Dashboard from "./pages/amajoniid/Dashboard";
 import ShadowAccess from "./pages/amajoniid/ShadowAccess";
 import SOCAlerts from "./pages/amajoniid/SOCAlerts";
 import FinanceShield from "./pages/amajoniid/FinanceShield";
+import AlertSettings from "./pages/amajoniid/AlertSettings";
 
 import NotFound from "./pages/NotFound";
 
@@ -57,6 +58,14 @@ const App = () => (
               element={
                 <AmajoniLayout>
                   <FinanceShield />
+                </AmajoniLayout>
+              }
+            />
+            <Route
+              path="/amajoniid/settings"
+              element={
+                <AmajoniLayout>
+                  <AlertSettings />
                 </AmajoniLayout>
               }
             />
