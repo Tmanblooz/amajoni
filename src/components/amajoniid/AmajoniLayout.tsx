@@ -1,8 +1,9 @@
-import { ReactNode, useState } from "react";
+import { ReactNode } from "react";
 import { NavLink, useLocation } from "react-router-dom";
 import { Shield, LayoutDashboard, ShieldAlert, Bell, Wallet, RotateCcw, Zap, ChevronDown, Plane, Lock, Eye, Smartphone, Fish, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAmajoni } from "@/contexts/AmajoniContext";
+import { simulateAttack, resetSystem as apiResetSystem } from "@/hooks/useAmajoniApi";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -38,13 +39,28 @@ export function AmajoniLayout({ children }: AmajoniLayoutProps) {
     threatType 
   } = useAmajoni();
 
+  // Create handlers that try API first, then fall back to context
+  const handleSimulate = async (scenario: string, fallbackAction: () => void) => {
+    const success = await simulateAttack(scenario);
+    if (!success) {
+      fallbackAction(); // Fallback to local simulation if API fails
+    }
+  };
+
+  const handleReset = async () => {
+    const success = await apiResetSystem();
+    if (!success) {
+      resetSystem(); // Fallback to local reset if API fails
+    }
+  };
+
   const scenarios = [
-    { label: "💰 Financial Theft (R20k)", action: simulateTheft, icon: Zap, description: "TymeBank unauthorized transaction" },
-    { label: "✈️ Impossible Travel", action: simulateImpossibleTravel, icon: Plane, description: "Login from 2 countries in 15 min" },
-    { label: "🔐 Brute Force Attack", action: simulateBruteForce, icon: Lock, description: "47 failed login attempts" },
-    { label: "👁️ Malicious Shadow App", action: simulateShadowApp, icon: Eye, description: "Risky OAuth app permissions" },
-    { label: "📱 SIM Swap Attack", action: simulateSIMSwap, icon: Smartphone, description: "CEO phone number hijacked" },
-    { label: "🎣 Phishing Success", action: simulatePhishing, icon: Fish, description: "Employee credentials stolen" },
+    { label: "💰 Financial Theft (R20k)", scenario: "financial_theft", fallback: simulateTheft, icon: Zap, description: "TymeBank unauthorized transaction" },
+    { label: "✈️ Impossible Travel", scenario: "impossible_travel", fallback: simulateImpossibleTravel, icon: Plane, description: "Login from 2 countries in 15 min" },
+    { label: "🔐 Brute Force Attack", scenario: "brute_force", fallback: simulateBruteForce, icon: Lock, description: "47 failed login attempts" },
+    { label: "👁️ Malicious Shadow App", scenario: "shadow_app", fallback: simulateShadowApp, icon: Eye, description: "Risky OAuth app permissions" },
+    { label: "📱 SIM Swap Attack", scenario: "sim_swap", fallback: simulateSIMSwap, icon: Smartphone, description: "CEO phone number hijacked" },
+    { label: "🎣 Phishing Success", scenario: "phishing", fallback: simulatePhishing, icon: Fish, description: "Employee credentials stolen" },
   ];
 
   return (
@@ -122,7 +138,7 @@ export function AmajoniLayout({ children }: AmajoniLayoutProps) {
           <Button
             variant="outline"
             size="sm"
-            onClick={resetSystem}
+            onClick={handleReset}
             className="gap-2 border-status-safe/30 text-status-safe hover:bg-status-safe/10"
           >
             <RotateCcw className="h-4 w-4" />
@@ -145,14 +161,14 @@ export function AmajoniLayout({ children }: AmajoniLayoutProps) {
             <DropdownMenuContent align="end" className="w-64">
               <DropdownMenuLabel>Choose Attack Scenario</DropdownMenuLabel>
               <DropdownMenuSeparator />
-              {scenarios.map((scenario, index) => (
+              {scenarios.map((s, index) => (
                 <DropdownMenuItem 
                   key={index}
-                  onClick={scenario.action}
+                  onClick={() => handleSimulate(s.scenario, s.fallback)}
                   className="flex flex-col items-start gap-1 py-3 cursor-pointer"
                 >
-                  <span className="font-medium">{scenario.label}</span>
-                  <span className="text-xs text-muted-foreground">{scenario.description}</span>
+                  <span className="font-medium">{s.label}</span>
+                  <span className="text-xs text-muted-foreground">{s.description}</span>
                 </DropdownMenuItem>
               ))}
             </DropdownMenuContent>

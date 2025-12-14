@@ -1,9 +1,15 @@
 import { AlertCard } from "@/components/amajoniid/AlertCard";
 import { useAmajoni } from "@/contexts/AmajoniContext";
-import { ShieldCheck, AlertTriangle, RefreshCw } from "lucide-react";
+import { useAlertsData } from "@/hooks/useAmajoniApi";
+import { ShieldCheck, AlertTriangle, RefreshCw, Loader2, WifiOff } from "lucide-react";
 
 export default function SOCAlerts() {
-  const { alerts, resolveAlert, isUnderAttack } = useAmajoni();
+  const { resolveAlert, isUnderAttack } = useAmajoni();
+  const { data: apiAlerts, loading, error } = useAlertsData(2000);
+  const contextAlerts = useAmajoni().alerts;
+  
+  // Use API alerts if available, otherwise fall back to context
+  const alerts = apiAlerts ?? contextAlerts;
 
   return (
     <div className="space-y-6">
@@ -15,8 +21,22 @@ export default function SOCAlerts() {
           </p>
         </div>
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
-          <RefreshCw className="h-4 w-4" />
-          <span>Live updates</span>
+          {loading && !apiAlerts ? (
+            <>
+              <Loader2 className="h-4 w-4 animate-spin" />
+              <span>Connecting...</span>
+            </>
+          ) : error ? (
+            <>
+              <WifiOff className="h-4 w-4 text-status-warning" />
+              <span className="text-status-warning">Offline mode</span>
+            </>
+          ) : (
+            <>
+              <RefreshCw className="h-4 w-4 animate-spin" style={{ animationDuration: '2s' }} />
+              <span>Live updates</span>
+            </>
+          )}
         </div>
       </div>
 
