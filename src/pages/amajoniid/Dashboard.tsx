@@ -4,15 +4,31 @@ import { StatCard } from "@/components/amajoniid/StatCard";
 import { TrendChart } from "@/components/amajoniid/TrendChart";
 import { ThreatMap } from "@/components/amajoniid/ThreatMap";
 import { useAmajoni } from "@/contexts/AmajoniContext";
+import { useDashboardData } from "@/hooks/useAmajoniApi";
 import { 
   AlertTriangle, Eye, Monitor, Clock, User, Smartphone, 
   Shield, Users, Key, Lock, TrendingUp, Activity,
-  CheckCircle, XCircle, UserX
+  CheckCircle, XCircle, UserX, Loader2
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 export default function Dashboard() {
-  const { riskScore, grade, activeAlerts, shadowApps, devicesSecure, lastScan, isUnderAttack, alerts } = useAmajoni();
+  // Fetch from API with 2s polling, fallback to context
+  const { data: apiData, loading, error } = useDashboardData(2000);
+  const contextData = useAmajoni();
+  
+  // Use API data if available, otherwise fall back to context
+  const riskScore = apiData?.riskScore ?? contextData.riskScore;
+  const grade = (apiData?.grade as "A" | "B" | "C" | "D" | "F") ?? contextData.grade;
+  const activeAlerts = apiData?.activeAlerts ?? contextData.activeAlerts;
+  const shadowApps = apiData?.shadowApps ?? contextData.shadowApps;
+  const devicesSecure = apiData?.devicesSecure ?? contextData.devicesSecure;
+  const lastScan = apiData?.lastScan ?? contextData.lastScan;
+  const isUnderAttack = apiData?.isUnderAttack ?? contextData.isUnderAttack;
+  const mfaPercentage = apiData?.mfaPercentage ?? 87;
+  const totalUsers = apiData?.totalUsers ?? 24;
+  const failedLogins = apiData?.failedLogins ?? (isUnderAttack ? 47 : 3);
+  const inactiveAccounts = apiData?.inactiveAccounts ?? 2;
   const navigate = useNavigate();
 
   const recentActivity = [
@@ -39,14 +55,27 @@ export default function Dashboard() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold text-foreground">Security Dashboard</h1>
-        <p className="text-muted-foreground mt-1">
-          {isUnderAttack 
-            ? "⚠️ Active threat detected - immediate action required"
-            : "Real-time identity and access monitoring"
-          }
-        </p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold text-foreground">Security Dashboard</h1>
+          <p className="text-muted-foreground mt-1">
+            {isUnderAttack 
+              ? "⚠️ Active threat detected - immediate action required"
+              : "Real-time identity and access monitoring"
+            }
+          </p>
+        </div>
+        {loading && !apiData && (
+          <div className="flex items-center gap-2 text-muted-foreground">
+            <Loader2 className="h-4 w-4 animate-spin" />
+            <span className="text-sm">Connecting...</span>
+          </div>
+        )}
+        {error && (
+          <div className="text-xs text-status-warning bg-status-warning/10 px-3 py-1 rounded-full">
+            Using fallback data
+          </div>
+        )}
       </div>
 
       {/* Hero Risk Gauge */}
@@ -95,16 +124,16 @@ export default function Dashboard() {
         />
         <StatCard
           title="MFA Enabled"
-          value="87%"
-          subtitle="21 of 24 users"
+          value={`${mfaPercentage}%`}
+          subtitle={`${Math.round(totalUsers * mfaPercentage / 100)} of ${totalUsers} users`}
           icon={Key}
-          trend={[75, 78, 80, 83, 85, 86, 87]}
+          trend={[75, 78, 80, 83, 85, 86, mfaPercentage]}
           trendColor="safe"
           variant="safe"
         />
         <StatCard
           title="Failed Logins"
-          value={isUnderAttack ? "47" : "3"}
+          value={String(failedLogins)}
           subtitle="Last 24 hours"
           icon={XCircle}
           trend={failedLoginTrend}
@@ -113,7 +142,7 @@ export default function Dashboard() {
         />
         <StatCard
           title="Inactive Accounts"
-          value="2"
+          value={String(inactiveAccounts)}
           subtitle="30+ days dormant"
           icon={UserX}
           trend={[4, 3, 3, 2, 2, 2, 2]}
