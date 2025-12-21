@@ -1,7 +1,8 @@
 import { useState, useEffect, useCallback } from "react";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 
-const API_BASE_URL = "http://localhost:8000";
+const FUNCTION_NAME = "amajoniid-api";
 
 interface DashboardData {
   riskScore: number;
@@ -32,21 +33,18 @@ interface ApiState<T> {
   error: string | null;
 }
 
-// Generic fetch with error handling
-async function apiFetch<T>(endpoint: string, options?: RequestInit): Promise<T> {
-  const response = await fetch(`${API_BASE_URL}${endpoint}`, {
-    ...options,
-    headers: {
-      "Content-Type": "application/json",
-      ...options?.headers,
-    },
+// Generic fetch with error handling using Supabase Edge Functions
+async function apiFetch<T>(endpoint: string, options?: { method?: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH'; body?: any }): Promise<T> {
+  const { data, error } = await supabase.functions.invoke(FUNCTION_NAME, {
+    method: options?.method || 'POST',
+    body: { path: endpoint, ...options?.body },
   });
   
-  if (!response.ok) {
-    throw new Error(`API error: ${response.status}`);
+  if (error) {
+    throw new Error(error.message || 'API error');
   }
   
-  return response.json();
+  return data as T;
 }
 
 // Dashboard data hook with polling
@@ -59,7 +57,7 @@ export function useDashboardData(pollInterval = 2000) {
 
   const fetchData = useCallback(async () => {
     try {
-      const data = await apiFetch<DashboardData>("/api/v1/dashboard");
+      const data = await apiFetch<DashboardData>("/dashboard");
       setState({ data, loading: false, error: null });
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : "Failed to fetch dashboard data";
@@ -70,8 +68,8 @@ export function useDashboardData(pollInterval = 2000) {
       }));
       // Only show toast on initial error, not on every poll
       if (state.data === null) {
-        toast.error("Backend offline", { 
-          description: "Could not connect to localhost:8000. Using fallback data.",
+        toast.error("Backend error", { 
+          description: "Could not fetch dashboard data. Using fallback data.",
           duration: 5000,
         });
       }
@@ -97,7 +95,7 @@ export function useAlertsData(pollInterval = 2000) {
 
   const fetchData = useCallback(async () => {
     try {
-      const data = await apiFetch<Alert[]>("/api/v1/alerts");
+      const data = await apiFetch<Alert[]>("/alerts");
       // Convert timestamp strings to Date objects
       const alerts = data.map(alert => ({
         ...alert,
@@ -126,15 +124,15 @@ export function useAlertsData(pollInterval = 2000) {
 // Simulate attack action
 export async function simulateAttack(scenario: string): Promise<boolean> {
   try {
-    await apiFetch("/api/v1/simulate", {
+    await apiFetch("/simulate", {
       method: "POST",
-      body: JSON.stringify({ scenario }),
+      body: { scenario },
     });
     toast.success("Simulation triggered", { description: `Scenario: ${scenario}` });
     return true;
   } catch (error) {
     toast.error("Simulation failed", { 
-      description: "Could not connect to backend. Is it running?",
+      description: "Could not connect to backend.",
     });
     return false;
   }
@@ -143,7 +141,7 @@ export async function simulateAttack(scenario: string): Promise<boolean> {
 // Reset system action
 export async function resetSystem(): Promise<boolean> {
   try {
-    await apiFetch("/api/v1/reset", { method: "POST" });
+    await apiFetch("/reset", { method: "POST" });
     toast.success("System reset", { description: "All simulations cleared" });
     return true;
   } catch (error) {

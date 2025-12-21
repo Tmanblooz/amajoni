@@ -1,1 +1,4 @@
 project_id = "hfbuizggozkgvinjopqq"
+
+[functions.amajoniid-api]
+verify_jwt = false
