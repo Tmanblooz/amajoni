@@ -3,44 +3,45 @@ import { KPICard } from "@/components/amajoniid/KPICard";
 import { StatCard } from "@/components/amajoniid/StatCard";
 import { TrendChart } from "@/components/amajoniid/TrendChart";
 import { ThreatMap } from "@/components/amajoniid/ThreatMap";
+import { SecurityPostureCards } from "@/components/amajoniid/SecurityPostureCards";
+import { RecentActivityFeed } from "@/components/amajoniid/RecentActivityFeed";
+import { QuickActions } from "@/components/amajoniid/QuickActions";
+import { DashboardHeader } from "@/components/amajoniid/DashboardHeader";
 import { useAmajoni } from "@/contexts/AmajoniContext";
 import { useDashboardData } from "@/hooks/useAmajoniApi";
+import { motion } from "framer-motion";
 import { 
-  AlertTriangle, Eye, Monitor, Clock, User, Smartphone, 
-  Shield, Users, Key, Lock, TrendingUp, Activity,
-  CheckCircle, XCircle, UserX, Loader2
+  AlertTriangle, Eye, Monitor, Clock,
+  Users, Key, XCircle, UserX,
+  TrendingUp, Activity
 } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+
+const stagger = {
+  hidden: {},
+  show: { transition: { staggerChildren: 0.06 } },
+};
+
+const fadeUp = {
+  hidden: { opacity: 0, y: 12 },
+  show: { opacity: 1, y: 0, transition: { duration: 0.35 } },
+};
 
 export default function Dashboard() {
-  // Fetch from API with 2s polling, fallback to context
   const { data: apiData, loading, error } = useDashboardData(2000);
-  const contextData = useAmajoni();
-  
-  // Use API data if available, otherwise fall back to context
-  const riskScore = apiData?.riskScore ?? contextData.riskScore;
-  const grade = (apiData?.grade as "A" | "B" | "C" | "D" | "F") ?? contextData.grade;
-  const activeAlerts = apiData?.activeAlerts ?? contextData.activeAlerts;
-  const shadowApps = apiData?.shadowApps ?? contextData.shadowApps;
-  const devicesSecure = apiData?.devicesSecure ?? contextData.devicesSecure;
-  const lastScan = apiData?.lastScan ?? contextData.lastScan;
-  const isUnderAttack = apiData?.isUnderAttack ?? contextData.isUnderAttack;
+  const ctx = useAmajoni();
+
+  const riskScore = apiData?.riskScore ?? ctx.riskScore;
+  const grade = (apiData?.grade as "A" | "B" | "C" | "D" | "F") ?? ctx.grade;
+  const activeAlerts = apiData?.activeAlerts ?? ctx.activeAlerts;
+  const shadowApps = apiData?.shadowApps ?? ctx.shadowApps;
+  const devicesSecure = apiData?.devicesSecure ?? ctx.devicesSecure;
+  const lastScan = apiData?.lastScan ?? ctx.lastScan;
+  const isUnderAttack = apiData?.isUnderAttack ?? ctx.isUnderAttack;
   const mfaPercentage = apiData?.mfaPercentage ?? 87;
   const totalUsers = apiData?.totalUsers ?? 24;
   const failedLogins = apiData?.failedLogins ?? (isUnderAttack ? 47 : 3);
   const inactiveAccounts = apiData?.inactiveAccounts ?? 2;
-  const navigate = useNavigate();
 
-  const recentActivity = [
-    { icon: User, text: "User ken@company.co.za logged in from Johannesburg", time: "5 min ago" },
-    { icon: Smartphone, text: "New device detected: iPhone 15 Pro", time: "1 hour ago" },
-    { icon: User, text: "Admin user changed password successfully", time: "2 hours ago" },
-    { icon: CheckCircle, text: "MFA enabled for finance@company.co.za", time: "3 hours ago" },
-  ];
-
-  // Mock trend data
-  const loginTrend = [12, 15, 14, 18, 16, 22, 19];
-  const alertTrend = isUnderAttack ? [2, 1, 3, 2, 4, 6, activeAlerts] : [2, 1, 3, 2, 2, 1, activeAlerts];
   const failedLoginTrend = isUnderAttack ? [1, 0, 2, 1, 3, 8, 12] : [1, 0, 2, 1, 0, 1, 0];
 
   const weeklyLoginData = [
@@ -54,106 +55,54 @@ export default function Dashboard() {
   ];
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-foreground">Security Dashboard</h1>
-          <p className="text-muted-foreground mt-1">
-            {isUnderAttack 
-              ? "⚠️ Active threat detected - immediate action required"
-              : "Real-time identity and access monitoring"
-            }
-          </p>
-        </div>
-        {loading && !apiData && (
-          <div className="flex items-center gap-2 text-muted-foreground">
-            <Loader2 className="h-4 w-4 animate-spin" />
-            <span className="text-sm">Connecting...</span>
-          </div>
-        )}
-        {error && (
-          <div className="text-xs text-status-warning bg-status-warning/10 px-3 py-1 rounded-full">
-            Using fallback data
-          </div>
-        )}
-      </div>
+    <motion.div
+      className="space-y-6"
+      variants={stagger}
+      initial="hidden"
+      animate="show"
+    >
+      {/* Header */}
+      <motion.div variants={fadeUp}>
+        <DashboardHeader
+          isUnderAttack={isUnderAttack}
+          loading={loading}
+          hasApiData={!!apiData}
+          error={error}
+        />
+      </motion.div>
 
-      {/* Hero Risk Gauge */}
-      <div className="flex justify-center">
+      {/* Risk Gauge */}
+      <motion.div variants={fadeUp} className="flex justify-center">
         <RiskGauge score={riskScore} grade={grade} />
-      </div>
+      </motion.div>
 
-      {/* Primary KPI Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <KPICard
-          title="Active Alerts"
-          value={activeAlerts}
-          icon={AlertTriangle}
-          variant={activeAlerts > 2 ? "danger" : activeAlerts > 0 ? "warning" : "default"}
-        />
-        <KPICard
-          title="Shadow Apps"
-          value={shadowApps}
-          icon={Eye}
-          variant={shadowApps > 5 ? "warning" : "default"}
-        />
-        <KPICard
-          title="Devices Secure"
-          value={devicesSecure}
-          icon={Monitor}
-          variant="safe"
-        />
-        <KPICard
-          title="Last Scan"
-          value={lastScan}
-          icon={Clock}
-          variant="default"
-        />
-      </div>
+      {/* Primary KPIs */}
+      <motion.div variants={fadeUp} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <KPICard title="Active Alerts" value={activeAlerts} icon={AlertTriangle}
+          variant={activeAlerts > 2 ? "danger" : activeAlerts > 0 ? "warning" : "default"} />
+        <KPICard title="Shadow Apps" value={shadowApps} icon={Eye}
+          variant={shadowApps > 5 ? "warning" : "default"} />
+        <KPICard title="Devices Secure" value={devicesSecure} icon={Monitor} variant="safe" />
+        <KPICard title="Last Scan" value={lastScan} icon={Clock} variant="default" />
+      </motion.div>
 
-      {/* Secondary Stats with Trends */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <StatCard
-          title="Total Users"
-          value="24"
-          subtitle="5 admins, 19 standard"
-          icon={Users}
-          trend={[20, 21, 22, 22, 23, 24, 24]}
-          trendColor="accent"
-          onClick={() => {}}
-        />
-        <StatCard
-          title="MFA Enabled"
-          value={`${mfaPercentage}%`}
+      {/* Secondary Stats */}
+      <motion.div variants={fadeUp} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <StatCard title="Total Users" value="24" subtitle="5 admins, 19 standard" icon={Users}
+          trend={[20, 21, 22, 22, 23, 24, 24]} trendColor="accent" onClick={() => {}} />
+        <StatCard title="MFA Enabled" value={`${mfaPercentage}%`}
           subtitle={`${Math.round(totalUsers * mfaPercentage / 100)} of ${totalUsers} users`}
-          icon={Key}
-          trend={[75, 78, 80, 83, 85, 86, mfaPercentage]}
-          trendColor="safe"
-          variant="safe"
-        />
-        <StatCard
-          title="Failed Logins"
-          value={String(failedLogins)}
-          subtitle="Last 24 hours"
-          icon={XCircle}
-          trend={failedLoginTrend}
+          icon={Key} trend={[75, 78, 80, 83, 85, 86, mfaPercentage]} trendColor="safe" variant="safe" />
+        <StatCard title="Failed Logins" value={String(failedLogins)} subtitle="Last 24 hours"
+          icon={XCircle} trend={failedLoginTrend}
           trendColor={isUnderAttack ? "danger" : "warning"}
-          variant={isUnderAttack ? "danger" : "default"}
-        />
-        <StatCard
-          title="Inactive Accounts"
-          value={String(inactiveAccounts)}
-          subtitle="30+ days dormant"
-          icon={UserX}
-          trend={[4, 3, 3, 2, 2, 2, 2]}
-          trendColor="warning"
-          variant="warning"
-        />
-      </div>
+          variant={isUnderAttack ? "danger" : "default"} />
+        <StatCard title="Inactive Accounts" value={String(inactiveAccounts)} subtitle="30+ days dormant"
+          icon={UserX} trend={[4, 3, 3, 2, 2, 2, 2]} trendColor="warning" variant="warning" />
+      </motion.div>
 
-      {/* Charts Row */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Login Activity Chart */}
+      {/* Charts + Threat Map */}
+      <motion.div variants={fadeUp} className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="bg-card border border-border rounded-xl p-6">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
@@ -170,104 +119,25 @@ export default function Dashboard() {
             </span>
           </div>
         </div>
-
-        {/* Threat Map */}
         <ThreatMap />
-      </div>
+      </motion.div>
 
-      {/* Security Posture Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="bg-card border border-border rounded-xl p-5">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="p-2 rounded-lg bg-status-safe/10">
-              <Shield className="h-5 w-5 text-status-safe" />
-            </div>
-            <div>
-              <h4 className="font-medium text-foreground">Identity Protection</h4>
-              <p className="text-xs text-muted-foreground">Authentication status</p>
-            </div>
-          </div>
-          <div className="space-y-2">
-            <div className="flex items-center justify-between text-sm">
-              <span className="text-muted-foreground">MFA Coverage</span>
-              <span className="text-status-safe font-medium">87%</span>
-            </div>
-            <div className="h-2 bg-secondary rounded-full overflow-hidden">
-              <div className="h-full bg-status-safe rounded-full" style={{ width: "87%" }} />
-            </div>
-          </div>
-        </div>
+      {/* Security Posture */}
+      <motion.div variants={fadeUp}>
+        <SecurityPostureCards
+          isUnderAttack={isUnderAttack}
+          shadowApps={shadowApps}
+          mfaPercentage={mfaPercentage}
+        />
+      </motion.div>
 
-        <div className="bg-card border border-border rounded-xl p-5">
-          <div className="flex items-center gap-3 mb-4">
-            <div className={`p-2 rounded-lg ${isUnderAttack ? "bg-status-danger/10" : "bg-status-safe/10"}`}>
-              <Lock className={`h-5 w-5 ${isUnderAttack ? "text-status-danger" : "text-status-safe"}`} />
-            </div>
-            <div>
-              <h4 className="font-medium text-foreground">Access Control</h4>
-              <p className="text-xs text-muted-foreground">Permission hygiene</p>
-            </div>
-          </div>
-          <div className="space-y-2">
-            <div className="flex items-center justify-between text-sm">
-              <span className="text-muted-foreground">Least Privilege</span>
-              <span className={`font-medium ${isUnderAttack ? "text-status-danger" : "text-status-safe"}`}>
-                {isUnderAttack ? "65%" : "92%"}
-              </span>
-            </div>
-            <div className="h-2 bg-secondary rounded-full overflow-hidden">
-              <div 
-                className={`h-full rounded-full ${isUnderAttack ? "bg-status-danger" : "bg-status-safe"}`} 
-                style={{ width: isUnderAttack ? "65%" : "92%" }} 
-              />
-            </div>
-          </div>
+      {/* Activity + Quick Actions */}
+      <motion.div variants={fadeUp} className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="lg:col-span-2">
+          <RecentActivityFeed />
         </div>
-
-        <div className="bg-card border border-border rounded-xl p-5">
-          <div className="flex items-center gap-3 mb-4">
-            <div className={`p-2 rounded-lg ${shadowApps > 3 ? "bg-status-warning/10" : "bg-status-safe/10"}`}>
-              <Eye className={`h-5 w-5 ${shadowApps > 3 ? "text-status-warning" : "text-status-safe"}`} />
-            </div>
-            <div>
-              <h4 className="font-medium text-foreground">Shadow IT</h4>
-              <p className="text-xs text-muted-foreground">Unauthorized apps</p>
-            </div>
-          </div>
-          <div className="space-y-2">
-            <div className="flex items-center justify-between text-sm">
-              <span className="text-muted-foreground">Apps Reviewed</span>
-              <span className={`font-medium ${shadowApps > 3 ? "text-status-warning" : "text-status-safe"}`}>
-                {Math.max(0, 8 - shadowApps)}/8
-              </span>
-            </div>
-            <div className="h-2 bg-secondary rounded-full overflow-hidden">
-              <div 
-                className={`h-full rounded-full ${shadowApps > 3 ? "bg-status-warning" : "bg-status-safe"}`} 
-                style={{ width: `${Math.max(0, (8 - shadowApps) / 8 * 100)}%` }} 
-              />
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Recent Activity */}
-      <div className="bg-card border border-border rounded-xl p-6">
-        <h2 className="text-lg font-semibold text-foreground mb-4">Recent Activity</h2>
-        <div className="space-y-4">
-          {recentActivity.map((activity, index) => (
-            <div key={index} className="flex items-center gap-4 text-sm">
-              <div className="p-2 rounded-lg bg-secondary">
-                <activity.icon className="h-4 w-4 text-muted-foreground" />
-              </div>
-              <div className="flex-1">
-                <p className="text-foreground">{activity.text}</p>
-              </div>
-              <span className="text-muted-foreground text-xs">{activity.time}</span>
-            </div>
-          ))}
-        </div>
-      </div>
-    </div>
+        <QuickActions />
+      </motion.div>
+    </motion.div>
   );
 }
