@@ -104,19 +104,6 @@ const Training = () => {
   const submitQuiz = async () => {
     if (!selectedTraining) return;
 
-    // Calculate score
-    let correct = 0;
-    selectedTraining.quiz_data.forEach((question, index) => {
-      if (answers[index] === question.correctAnswer) {
-        correct++;
-      }
-    });
-
-    const score = Math.round((correct / selectedTraining.quiz_data.length) * 100);
-    const passed = score >= selectedTraining.passing_score;
-
-    setQuizScore(score);
-    setShowResults(true);
     setSubmitting(true);
 
     try {
@@ -131,6 +118,9 @@ const Training = () => {
 
       const score = data.score;
       const passed = data.passed;
+
+      setQuizScore(score);
+      setShowResults(true);
 
       toast({
         title: passed ? "Congratulations!" : "Quiz Completed",
