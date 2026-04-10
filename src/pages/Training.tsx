@@ -120,31 +120,17 @@ const Training = () => {
     setSubmitting(true);
 
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error("Not authenticated");
-
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('organization_id')
-        .eq('id', user.id)
-        .single();
-
-      if (!profile) throw new Error("Profile not found");
-
-      const { error } = await supabase
-        .from('training_completions')
-        .upsert({
+      const { data, error } = await supabase.functions.invoke('submit-training', {
+        body: {
           training_id: selectedTraining.id,
-          user_id: user.id,
-          organization_id: profile.organization_id,
-          score,
-          passed,
-          answers: answers as any,
-        }, {
-          onConflict: 'training_id,user_id'
-        });
+          answers: answers,
+        },
+      });
 
       if (error) throw error;
+
+      const score = data.score;
+      const passed = data.passed;
 
       toast({
         title: passed ? "Congratulations!" : "Quiz Completed",
