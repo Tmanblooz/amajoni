@@ -104,47 +104,23 @@ const Training = () => {
   const submitQuiz = async () => {
     if (!selectedTraining) return;
 
-    // Calculate score
-    let correct = 0;
-    selectedTraining.quiz_data.forEach((question, index) => {
-      if (answers[index] === question.correctAnswer) {
-        correct++;
-      }
-    });
-
-    const score = Math.round((correct / selectedTraining.quiz_data.length) * 100);
-    const passed = score >= selectedTraining.passing_score;
-
-    setQuizScore(score);
-    setShowResults(true);
     setSubmitting(true);
 
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error("Not authenticated");
-
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('organization_id')
-        .eq('id', user.id)
-        .single();
-
-      if (!profile) throw new Error("Profile not found");
-
-      const { error } = await supabase
-        .from('training_completions')
-        .upsert({
+      const { data, error } = await supabase.functions.invoke('submit-training', {
+        body: {
           training_id: selectedTraining.id,
-          user_id: user.id,
-          organization_id: profile.organization_id,
-          score,
-          passed,
-          answers: answers as any,
-        }, {
-          onConflict: 'training_id,user_id'
-        });
+          answers: answers,
+        },
+      });
 
       if (error) throw error;
+
+      const score = data.score;
+      const passed = data.passed;
+
+      setQuizScore(score);
+      setShowResults(true);
 
       toast({
         title: passed ? "Congratulations!" : "Quiz Completed",
