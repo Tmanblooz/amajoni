@@ -7,27 +7,25 @@ import { SecurityPostureCards } from "@/components/amajoniid/SecurityPostureCard
 import { RecentActivityFeed } from "@/components/amajoniid/RecentActivityFeed";
 import { QuickActions } from "@/components/amajoniid/QuickActions";
 import { DashboardHeader } from "@/components/amajoniid/DashboardHeader";
+import { ExecutiveSummary } from "@/components/amajoniid/ExecutiveSummary";
+import { RiskTrendChart } from "@/components/amajoniid/RiskTrendChart";
+import { AttackTimeline } from "@/components/amajoniid/AttackTimeline";
 import { useAmajoni } from "@/contexts/AmajoniContext";
-import { useDashboardData } from "@/hooks/useAmajoniApi";
+import { useDashboardData, useAlertsData, useRiskTrend } from "@/hooks/useAmajoniApi";
 import { motion } from "framer-motion";
-import { 
+import {
   AlertTriangle, Eye, Monitor, Clock,
   Users, Key, XCircle, UserX,
-  TrendingUp, Activity
+  TrendingUp, Activity,
 } from "lucide-react";
 
-const stagger = {
-  hidden: {},
-  show: { transition: { staggerChildren: 0.06 } },
-};
-
-const fadeUp = {
-  hidden: { opacity: 0, y: 12 },
-  show: { opacity: 1, y: 0, transition: { duration: 0.35 } },
-};
+const stagger = { hidden: {}, show: { transition: { staggerChildren: 0.06 } } };
+const fadeUp = { hidden: { opacity: 0, y: 12 }, show: { opacity: 1, y: 0, transition: { duration: 0.35 } } };
 
 export default function Dashboard() {
   const { data: apiData, loading, error } = useDashboardData(2000);
+  const { data: alertsData } = useAlertsData(2000);
+  const { data: trendData } = useRiskTrend(4000);
   const ctx = useAmajoni();
 
   const riskScore = apiData?.riskScore ?? ctx.riskScore;
@@ -41,40 +39,51 @@ export default function Dashboard() {
   const totalUsers = apiData?.totalUsers ?? 24;
   const failedLogins = apiData?.failedLogins ?? (isUnderAttack ? 47 : 3);
   const inactiveAccounts = apiData?.inactiveAccounts ?? 2;
+  const criticalAlerts = apiData?.criticalAlerts ?? 0;
+  const highAlerts = apiData?.highAlerts ?? 0;
+  const highlights = apiData?.highlights ?? [{ type: "info" as const, text: "Connecting to backend…" }];
 
   const failedLoginTrend = isUnderAttack ? [1, 0, 2, 1, 3, 8, 12] : [1, 0, 2, 1, 0, 1, 0];
-
   const weeklyLoginData = [
-    { name: "Mon", value: 45 },
-    { name: "Tue", value: 52 },
-    { name: "Wed", value: 49 },
-    { name: "Thu", value: 63 },
-    { name: "Fri", value: 58 },
-    { name: "Sat", value: 15 },
-    { name: "Sun", value: 12 },
+    { name: "Mon", value: 45 }, { name: "Tue", value: 52 }, { name: "Wed", value: 49 },
+    { name: "Thu", value: 63 }, { name: "Fri", value: 58 }, { name: "Sat", value: 15 }, { name: "Sun", value: 12 },
   ];
 
   return (
-    <motion.div
-      className="space-y-6"
-      variants={stagger}
-      initial="hidden"
-      animate="show"
-    >
-      {/* Header */}
+    <motion.div className="space-y-6" variants={stagger} initial="hidden" animate="show">
       <motion.div variants={fadeUp}>
-        <DashboardHeader
-          isUnderAttack={isUnderAttack}
-          loading={loading}
-          hasApiData={!!apiData}
-          error={error}
-        />
+        <DashboardHeader isUnderAttack={isUnderAttack} loading={loading} hasApiData={!!apiData} error={error} />
       </motion.div>
 
-      {/* Risk Gauge */}
-      <motion.div variants={fadeUp} className="flex justify-center">
-        <RiskGauge score={riskScore} grade={grade} />
+      {/* Risk Gauge + Executive Summary side-by-side */}
+      <motion.div variants={fadeUp} className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-stretch">
+        <div className="flex justify-center items-center">
+          <RiskGauge score={riskScore} grade={grade} />
+        </div>
+        <div className="lg:col-span-2">
+          <ExecutiveSummary
+            riskScore={riskScore}
+            grade={grade}
+            isUnderAttack={isUnderAttack}
+            threatType={apiData?.threatType}
+            criticalAlerts={criticalAlerts}
+            highAlerts={highAlerts}
+            mfaPercentage={mfaPercentage}
+            highlights={highlights}
+          />
+        </div>
       </motion.div>
+
+      {/* Attack timeline appears only during incidents */}
+      {isUnderAttack && alertsData && (
+        <motion.div variants={fadeUp}>
+          <AttackTimeline
+            alerts={alertsData}
+            threatType={apiData?.threatType}
+            attackElapsedMs={apiData?.attackElapsedMs ?? 0}
+          />
+        </motion.div>
+      )}
 
       {/* Primary KPIs */}
       <motion.div variants={fadeUp} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -83,13 +92,13 @@ export default function Dashboard() {
         <KPICard title="Shadow Apps" value={shadowApps} icon={Eye}
           variant={shadowApps > 5 ? "warning" : "default"} />
         <KPICard title="Devices Secure" value={devicesSecure} icon={Monitor} variant="safe" />
-        <KPICard title="Last Scan" value={lastScan} icon={Clock} variant="default" />
+        <KPICard title="Last Scan" value={typeof lastScan === "string" && lastScan.includes("T") ? new Date(lastScan).toLocaleTimeString() : lastScan} icon={Clock} variant="default" />
       </motion.div>
 
       {/* Secondary Stats */}
       <motion.div variants={fadeUp} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <StatCard title="Total Users" value="24" subtitle="5 admins, 19 standard" icon={Users}
-          trend={[20, 21, 22, 22, 23, 24, 24]} trendColor="accent" onClick={() => {}} />
+        <StatCard title="Total Users" value={String(totalUsers)} subtitle="5 admins, 19 standard" icon={Users}
+          trend={[20, 21, 22, 22, 23, 24, totalUsers]} trendColor="accent" onClick={() => {}} />
         <StatCard title="MFA Enabled" value={`${mfaPercentage}%`}
           subtitle={`${Math.round(totalUsers * mfaPercentage / 100)} of ${totalUsers} users`}
           icon={Key} trend={[75, 78, 80, 83, 85, 86, mfaPercentage]} trendColor="safe" variant="safe" />
@@ -101,8 +110,9 @@ export default function Dashboard() {
           icon={UserX} trend={[4, 3, 3, 2, 2, 2, 2]} trendColor="warning" variant="warning" />
       </motion.div>
 
-      {/* Charts + Threat Map */}
+      {/* Risk Trend + Login Activity */}
       <motion.div variants={fadeUp} className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <RiskTrendChart data={trendData ?? []} currentScore={riskScore} />
         <div className="bg-card border border-border rounded-xl p-6">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
@@ -119,6 +129,10 @@ export default function Dashboard() {
             </span>
           </div>
         </div>
+      </motion.div>
+
+      {/* Threat Map */}
+      <motion.div variants={fadeUp}>
         <ThreatMap />
       </motion.div>
 
