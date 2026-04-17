@@ -204,3 +204,68 @@ export async function resetSystem(): Promise<boolean> {
     return false;
   }
 }
+
+// Risk trend hook (polls every 4s)
+export function useRiskTrend(pollInterval = 4000) {
+  const [state, setState] = useState<ApiState<RiskTrendPoint[]>>({ data: null, loading: true, error: null });
+
+  const fetchData = useCallback(async () => {
+    try {
+      const data = await apiFetch<{ trend: RiskTrendPoint[] }>("/risk-trend");
+      setState({ data: data.trend, loading: false, error: null });
+    } catch (error) {
+      setState(prev => ({ ...prev, loading: false, error: error instanceof Error ? error.message : "Failed" }));
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchData();
+    const interval = setInterval(fetchData, pollInterval);
+    return () => clearInterval(interval);
+  }, [fetchData, pollInterval]);
+
+  return state;
+}
+
+// Finance data hook
+export function useFinanceData(pollInterval = 2000) {
+  const [state, setState] = useState<ApiState<FinanceData>>({ data: null, loading: true, error: null });
+
+  const fetchData = useCallback(async () => {
+    try {
+      const data = await apiFetch<FinanceData>("/finance");
+      setState({ data, loading: false, error: null });
+    } catch (error) {
+      setState(prev => ({ ...prev, loading: false, error: error instanceof Error ? error.message : "Failed" }));
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchData();
+    const interval = setInterval(fetchData, pollInterval);
+    return () => clearInterval(interval);
+  }, [fetchData, pollInterval]);
+
+  return state;
+}
+
+export async function acknowledgeAlert(id: string): Promise<boolean> {
+  try {
+    await apiFetch("/alerts/acknowledge", { method: "POST", body: { id } });
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+export async function resolveAlertApi(id: string): Promise<boolean> {
+  try {
+    await apiFetch("/alerts/resolve", { method: "POST", body: { id } });
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+export type { Alert, RiskTrendPoint, FinanceData, Transaction, BeneficiaryChange, Highlight };
+
