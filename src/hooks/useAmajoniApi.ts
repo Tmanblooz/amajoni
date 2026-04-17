@@ -4,19 +4,31 @@ import { supabase } from "@/integrations/supabase/client";
 
 const FUNCTION_NAME = "amajoniid-api";
 
+interface Highlight {
+  type: "info" | "warning" | "critical";
+  text: string;
+}
+
 interface DashboardData {
   riskScore: number;
   grade: string;
   activeAlerts: number;
+  criticalAlerts?: number;
+  highAlerts?: number;
   shadowApps: number;
   devicesSecure: string;
   lastScan: string;
   isUnderAttack: boolean;
   threatType?: string;
+  scenario?: string;
+  attackElapsedMs?: number;
   mfaPercentage?: number;
   totalUsers?: number;
   failedLogins?: number;
   inactiveAccounts?: number;
+  complianceScore?: number;
+  highRiskUsers?: number;
+  highlights?: Highlight[];
 }
 
 interface Alert {
@@ -25,6 +37,47 @@ interface Alert {
   severity: "critical" | "high" | "medium" | "low";
   message: string;
   timestamp: Date;
+  category?: string;
+  user?: string;
+  recommendedAction?: string;
+  acknowledged?: boolean;
+}
+
+interface RiskTrendPoint {
+  t: string;
+  score: number;
+}
+
+interface Transaction {
+  id: string;
+  account: string;
+  beneficiary: string;
+  amount: number;
+  currency: string;
+  status: "approved" | "pending" | "blocked" | "flagged";
+  risk: "low" | "medium" | "high" | "critical";
+  timestamp: string;
+  reason?: string;
+}
+
+interface BeneficiaryChange {
+  id: string;
+  account: string;
+  oldBeneficiary: string;
+  newBeneficiary: string;
+  changedBy: string;
+  timestamp: string;
+  status: "approved" | "pending" | "suspicious";
+}
+
+interface FinanceData {
+  accounts: { id: string; name: string; balance: number; currency: string }[];
+  transactions: Transaction[];
+  beneficiaryChanges: BeneficiaryChange[];
+  blockedToday: number;
+  flaggedToday: number;
+  isUnderAttack: boolean;
+  threatType?: string;
 }
 
 interface ApiState<T> {
